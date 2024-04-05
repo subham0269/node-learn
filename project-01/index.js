@@ -11,9 +11,9 @@ app.get('/users', (req, res) => {
     ${usersData.map(user => `<li key=${user.id}>${user.first_name}</li>`).join('')}
   </ul>
   `
-  return res.send(html);
+  return res.send(html)
 })
-// --------------------------------------
+// ---------------------------------------
 
 
 app.get('/api/users', (req,res) => {
@@ -28,7 +28,7 @@ app.route('/api/users/:id')
 })
 .patch((req, res) => {
   const userID = Number(req.params.id);
-  // Todo: Updating a specific user
+  // Todo : Updating a specific user
   return res.json({status: 'Pending'});
 })
 .delete((req,res) => {
