@@ -21,7 +21,6 @@ async function loadUsersData () {
 
 let usersData = [];
 loadUsersData().then(data => usersData = data);
-console.log(usersData);
 
 
 // Just for testing SSR and returing HTML
@@ -51,7 +50,7 @@ app.route('/api/users/:id')
       const users = JSON.parse(data);
       const user = users.find(usr => usr.id === userID);
       if (user) {
-        return res.status(200).json({userID});
+        return res.status(200).json(user);
       } else {
         return res.status(404).json({error: 'User Not Found'});
       }
