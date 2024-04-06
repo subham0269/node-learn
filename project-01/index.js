@@ -3,8 +3,9 @@ const path = require('path');
 const express = require('express');
 // const usersData = require('./MOCK_DATA.json');
 const app = express();
+const cors = require('cors');
 const PORT = 8000;
-
+app.use(cors());
 // Middleware
 app.use(express.urlencoded({extended: false}))
 
@@ -43,11 +44,14 @@ app.route('/api/users/:id')
   .get(async (req,res) => {
     try {
       const userID = Number(req.params.id);
+      if (userID===0) {
+        return res.status(400).json({ error: 'Missing ID parameter' });
+      }
       const data = await fs.readFile(path.join(__dirname, './MOCK_DATA.json'), 'utf-8',);
       const users = JSON.parse(data);
       const user = users.find(usr => usr.id === userID);
       if (user) {
-        return res.status(200).json(user);
+        return res.status(200).json({userID});
       } else {
         return res.status(404).json({error: 'User Not Found'});
       }
