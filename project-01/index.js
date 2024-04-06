@@ -42,8 +42,10 @@ app.get('/api/users', (req,res) => {
 app.route('/api/users/:id')
   .get(async (req,res) => {
     try {
-      const userID = req.params.id;
-      const user = usersData.find(usr => usr.id === Number(userID));
+      const userID = Number(req.params.id);
+      const data = await fs.readFile(path.join(__dirname, './MOCK_DATA.json'), 'utf-8',);
+      const users = JSON.parse(data);
+      const user = users.find(usr => usr.id === userID);
       if (user) {
         return res.status(200).json(user);
       } else {
@@ -74,19 +76,14 @@ app.route('/api/users/:id')
   })
   .delete(async (req,res) => {
     try {
-      const userID = Number(req.params.id) - 1 ;
+      const userID = Number(req.params.id) ;
       const userExists = usersData.some(usr => usr.id === userID);
       if (!userExists) {
         return res.status(404).json({ error: 'User not found' });
       }
       const updatedUsers = usersData.filter(user => user.id !== userID);
-      console.log(updatedUsers);
-      if (userID >= 0 && userID < usersData.length) {
-        await fs.writeFile(path.join(__dirname, './MOCK_DATA.json'), JSON.stringify(usersData));
-        return res.status(200).json({ status: 'Removed user from json' });
-      } else {
-        return res.status(404).json({error: 'User Not found'});
-      }
+      await fs.writeFile(path.join(__dirname, './MOCK_DATA.json'), JSON.stringify(updatedUsers));
+      return res.status(200).json({ status: 'Removed user from json' });
     } catch (err) {
       console.error('Error in DELETE /api/users/:id', err);
       return res.status(500).json({error: 'Internal Server Error'});
