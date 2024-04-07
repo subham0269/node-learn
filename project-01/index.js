@@ -6,8 +6,22 @@ const app = express();
 const cors = require('cors');
 const PORT = 8000;
 app.use(cors());
+
 // Middleware
 app.use(express.urlencoded({extended: false}))
+
+app.use(async (req,res, next) => {
+  try {
+    await fs.appendFile('log.txt', `${Date.now()}: ${req.ip} ${req.method}: ${req.path}\n`);
+    console.log('hello 1st middleware');
+  } catch (err) {
+    console.error('Error in first middleware', err);
+    return res.status(500).json({error: 'Internal Server Error'});
+  } finally {
+    next();
+  }
+})
+
 
 async function loadUsersData () {
   try {
@@ -36,6 +50,8 @@ app.get('/users', (req, res) => {
 
 
 app.get('/api/users', (req,res) => {
+  console.log(req.headers);
+  res.setHeader('X-Name', 'subham')
   return res.json(usersData);
 });
 

@@ -1,0 +1,11 @@
+1712467959080: GET: /api/users
+1712467982186: GET: /users
+1712467989214: GET: /api/users/500
+1712468097642: ::ffff:127.0.0.1 POST: /api/users
+1712468978985: ::ffff:127.0.0.1 GET: /api/users
+1712469123861: ::ffff:127.0.0.1 GET: /api/users
+1712469967006: ::1 GET: /api/users/
+1712469983868: ::1 GET: /api/users/
+1712469985475: ::1 GET: /api/users/
+1712469985623: ::1 GET: /favicon.ico
+1712470012610: ::1 GET: /api/users/
