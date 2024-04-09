@@ -1,8 +1,8 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import express from 'express';
-import { MongoClient, ServerApiVersion } from "mongodb";
 import { fileURLToPath } from 'url';
+import mongoose from 'mongoose';
 // const usersData = require('./MOCK_DATA.json');
 import cors from 'cors';
 const __filename = fileURLToPath(import.meta.url);
@@ -12,13 +12,44 @@ const app = express();
 const PORT = 8000;
 app.use(cors());
 
+// Database connections
+mongoose.connect("mongodb+srv://test:test@node-project.tlxgtbk.mongodb.net/test?retryWrites=true&w=majority&appName=node-project")
+.then(() => {
+  console.log("MongoDB connected");
+})
+.catch((err) => {
+  console.log('Error in mongo', err);
+})
+const userSchema = new mongoose.Schema ({
+  firstName: {
+    type: String,
+    required: true
+  },
+  lastName:{
+    type:String,
+    required: true
+  },
+  email:{
+    type: String,
+    unique: true,
+    required: true
+  },
+  country: {
+    type: String,
+  }
+}, {timestamps: true});
+
+const UserModel = new mongoose.model("user", userSchema);
+
+// --------------------
+
 // Middleware
 app.use(express.urlencoded({extended: false}))
 
 app.use(async (req,res, next) => {
   try {
     await fs.appendFile('log.txt', `${Date.now()}: ${req.ip} ${req.method}: ${req.path}\n`);
-    console.log('hello 1st middleware');
+    // console.log('hello 1st middleware');
   } catch (err) {
     console.error('Error in first middleware', err);
     return res.status(500).json({error: 'Internal Server Error'});
@@ -43,21 +74,29 @@ loadUsersData().then(data => usersData = data);
 
 
 // Just for testing SSR and returing HTML
-app.get('/users', (req, res) => {
-  const html = `
-  <ul>
-    ${usersData.map(user => `<li key=${user.id}>${user.first_name} ${user.last_name}</li>`).join('')}
-  </ul>
-  `
-  return res.send(html)
+app.get('/users', async (req, res) => {
+  try {
+    const usersData = await UserModel.find({});
+    const html = `
+    <ul>
+      ${usersData.map(user => `<li key=${user.id}>${user.firstName} ${user.lastName} - ${user.email}</li>`).join('')}
+    </ul>
+    `
+    return res.status(200).send(html);
+  } catch(err) {
+    return res.status(500).json({error: "Internal Server Error"});
+  }
 })
 // ---------------------------------------
 
 
-app.get('/api/users', (req,res) => {
-  console.log(req.headers);
-  res.setHeader('X-Name', 'subham')
-  return res.json(usersData);
+app.get('/api/users', async (req,res) => {
+  try {
+    const allUsers = await UserModel.find({});
+    return res.status(200).json(allUsers);
+  } catch (err) {
+    return res.status(500).json({error: 'Internal Server Error'});
+  }
 });
 
 app.route('/api/users/:id')
@@ -122,9 +161,17 @@ app.post('/api/users', async (req,res) => {
       return res.status(400).json({message: 'All fields are required.'});
     }
     
-    usersData.push({id: usersData.length + 1, ...body});
-    await fs.writeFile(path.join(__dirname, './MOCK_DATA.json'), JSON.stringify(usersData));
-    return res.status(201).json({status: 'User successfully created', id: usersData.length});
+    const result = await UserModel.create({
+      firstName: body.first_name,
+      lastName: body.last_name,
+      email: body.email,
+      country: body.country
+    })
+    
+    // usersData.push({id: usersData.length + 1, ...body});
+    // await fs.writeFile(path.join(__dirname, './MOCK_DATA.json'), JSON.stringify(usersData));
+    console.log("Post result: ",result);
+    return res.status(201).json({status: 'User successfully created'});
   } catch (err) {
     console.error('Error in POST /api/users', err);
     return res.status(500).json({error: 'Internal Server Error'});
