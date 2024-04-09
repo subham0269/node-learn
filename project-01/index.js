@@ -1,9 +1,14 @@
-const fs = require('fs').promises;
-const path = require('path');
-const express = require('express');
+import { promises as fs } from 'fs';
+import path from 'path';
+import express from 'express';
+import { MongoClient, ServerApiVersion } from "mongodb";
+import { fileURLToPath } from 'url';
 // const usersData = require('./MOCK_DATA.json');
+import cors from 'cors';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-const cors = require('cors');
 const PORT = 8000;
 app.use(cors());
 
@@ -112,6 +117,11 @@ app.route('/api/users/:id')
 app.post('/api/users', async (req,res) => {
   try {
     const body = req.body;
+
+    if (!body || !body.first_name || !body.last_name || !body.email || !body.country) {
+      return res.status(400).json({message: 'All fields are required.'});
+    }
+    
     usersData.push({id: usersData.length + 1, ...body});
     await fs.writeFile(path.join(__dirname, './MOCK_DATA.json'), JSON.stringify(usersData));
     return res.status(201).json({status: 'User successfully created', id: usersData.length});
