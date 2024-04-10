@@ -3,17 +3,20 @@ import path from 'path';
 import express from 'express';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
-// const usersData = require('./MOCK_DATA.json');
 import cors from 'cors';
+import dotenv from 'dotenv';
+dotenv.config();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 8000;
+const { MONGODB_URL } = process.env;
+
 app.use(cors());
 
-// Database connections
-mongoose.connect("mongodb+srv://test:test@node-project.tlxgtbk.mongodb.net/test?retryWrites=true&w=majority&appName=node-project")
+mongoose.connect(MONGODB_URL)
 .then(() => {
   console.log("MongoDB connected");
 })
@@ -59,20 +62,6 @@ app.use(async (req,res, next) => {
 })
 
 
-async function loadUsersData () {
-  try {
-    const data = await fs.readFile(path.join(__dirname, './MOCK_DATA.json'), 'utf-8');
-    return JSON.parse(data);
-  } catch (err) {
-    console.error('Error loading users data. ', err);
-    return [];
-  }
-}
-
-let usersData = [];
-loadUsersData().then(data => usersData = data);
-
-
 // Just for testing SSR and returing HTML
 app.get('/users', async (req, res) => {
   try {
@@ -102,36 +91,27 @@ app.get('/api/users', async (req,res) => {
 app.route('/api/users/:id')
   .get(async (req,res) => {
     try {
-      const userID = Number(req.params.id);
-      if (userID===0) {
+      const userID = req.params.id;
+
+      if (!userID) {
         return res.status(400).json({ error: 'Missing ID parameter' });
       }
-      const data = await fs.readFile(path.join(__dirname, './MOCK_DATA.json'), 'utf-8',);
-      const users = JSON.parse(data);
-      const user = users.find(usr => usr.id === userID);
-      if (user) {
-        return res.status(200).json(user);
-      } else {
+      const user = await UserModel.findById(userID);
+      if (!user) {
         return res.status(404).json({error: 'User Not Found'});
       }
+      return res.status(200).json({user: user})
     } catch (err) {
       return res.status(500).json({error: 'Internal Server Error'})
     }
   })
   .patch(async (req, res) => {
     try {
-      const userID = Number(req.params.id);
+      const userID = req.params.id;
       const body = req.body;
-      const userIndex = usersData.findIndex((i)=> i.id === userID);
-  
-      if (userIndex !==-1){
-        usersData[userIndex] = {...usersData[userIndex], ...body};
-
-        await fs.writeFile(path.join(__dirname, './MOCK_DATA.json'), JSON.stringify(usersData));
-        return res.status(200).json({status: 'Updated user successfully'});
-      } else {
-        return res.status(404).json({error: 'User Not found'});
-      }
+      const result = await UserModel.findByIdAndUpdate(userID, body);
+      if (!result) return res.status(404).json({error: 'User Not found'});
+      return res.status(200).json({status: 'Updated user successfully', result: result});
     } catch (err) {
       console.error('Error in PATCH /api/users/:id', err);
       return res.status(500).json({error: 'Internal Server Error'});
@@ -139,14 +119,13 @@ app.route('/api/users/:id')
   })
   .delete(async (req,res) => {
     try {
-      const userID = Number(req.params.id) ;
-      const userExists = usersData.some(usr => usr.id === userID);
-      if (!userExists) {
+      const userID = req.params.id;
+      if (!userID) {
         return res.status(404).json({ error: 'User not found' });
       }
-      const updatedUsers = usersData.filter(user => user.id !== userID);
-      await fs.writeFile(path.join(__dirname, './MOCK_DATA.json'), JSON.stringify(updatedUsers));
-      return res.status(200).json({ status: 'Removed user from json' });
+      const result = await UserModel.findByIdAndDelete(userID);
+      if(!result) return res.status(404).json({error: 'User Not found'});
+      return res.status(200).json({ status: 'Removed user from json' , res: result});
     } catch (err) {
       console.error('Error in DELETE /api/users/:id', err);
       return res.status(500).json({error: 'Internal Server Error'});
@@ -168,8 +147,6 @@ app.post('/api/users', async (req,res) => {
       country: body.country
     })
     
-    // usersData.push({id: usersData.length + 1, ...body});
-    // await fs.writeFile(path.join(__dirname, './MOCK_DATA.json'), JSON.stringify(usersData));
     console.log("Post result: ",result);
     return res.status(201).json({status: 'User successfully created'});
   } catch (err) {
