@@ -23,7 +23,9 @@ export const generateNewShortURL = async (req,res) => {
       redirectUrl: body.url,
       visitHistory : []
     })
-    return res.status(201).json({message : 'successfully created', id: shortID})
+    return res.render('home', {
+      id:shortID
+    })
   } catch (err) {
     return res.status(500).json ({error: 'Internal Server Error', message : err})
   }
@@ -43,13 +45,22 @@ export const redirectToUrl = async (req,res) => {
     }, {
       returnOriginal: false
     });
-    console.log(updated);
-    const entry = await urlModel.findOne(filter)
-    if (!entry) return res.status(404).json({error: '404 not found'})
-    return res.redirect(entry.redirectUrl);
+    if (!updated) return res.status(404).json({error: '404 not found'})
+    return res.redirect(updated.redirectUrl);
   } catch (err) {
     console.log(err);
     return res.status(500).json({error : 'Internal Server Error', message : err})
   }
-  // console.log(shortid);
+}
+
+export const getAnalytics = async (req, res) => {
+  const s_id = req.params.id;
+  if (!s_id) return res.status(400).json({error:'Id is required'})
+  try {
+    const filter = {shortId : s_id};
+    const data = await urlModel.findOne(filter);
+    res.status(200).json({total_clicks : data.visitHistory.length, analytics: data.visitHistory});
+  } catch (err) {
+    return res.status(500).json({error:'Internal Server Error'})
+  }
 }
