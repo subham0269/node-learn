@@ -6,4 +6,8 @@ router.route('/').get((req,res) => {
   return res.render('home');
 })
 
+router.route('/signup').get((req,res) => {
+  return res.render('signup');
+})
+
 export default router;

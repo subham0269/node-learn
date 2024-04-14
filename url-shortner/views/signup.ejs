@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signup</title>
+</head>
+<body>
+  <h3>Signup</h3>
+  <form method="POST" action="/user">
+    <div style="padding: 10px 0;">
+      <label>Full Name</label>
+      <input type="text" name="name" placeholder="full name" required/>
+    </div>
+    <div style="padding: 10px 0;">
+      <label>Email</label>
+      <input type="email" name="email" placeholder="email@example.com" required/>
+    </div>
+    <div style="padding: 10px 0;">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter password" required/>
+    </div>
+    <button type="submit">Signup</button>
+  </form>
+</body>
+</html>

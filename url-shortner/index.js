@@ -5,7 +5,7 @@ import connectToMongo from "./connection.js";
 import dotenv from 'dotenv';
 import router from "./routes/index.js";
 import staticRouter from './routes/static.js'
-import urlModel from './models/url.js';
+import userRouter from './routes/user.js';
 dotenv.config();;
 const PORT = 8001;
 const app = e();
@@ -20,13 +20,15 @@ connectToMongo(MONGO_URL).then(() => console.log('Connected to Database')).catch
 
 app.set('view engine', 'ejs');
 app.set("views",path.resolve('./views'));
-
 app.use(e.urlencoded({extended: false}));
-app.use('/ssr', staticRouter)
 
-app.use('/url', router);
+app.use('/', staticRouter); //for ssr and pages
 
-app.use('/',router)
+app.use('/user', userRouter); //for authentication
+
+// app.use('/url', router);
+
+app.use('/url',router) //making requests and redirects
 
 
 app.listen(PORT, () => console.log(`Server started at port ${PORT}`))
