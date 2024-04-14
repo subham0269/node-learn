@@ -21,7 +21,7 @@ export const generateNewShortURL = async (req,res) => {
     await urlModel.create({
       shortId: shortID,
       redirectUrl: body.url,
-      visit_hist : []
+      visitHistory : []
     })
     return res.status(201).json({message : 'successfully created', id: shortID})
   } catch (err) {
@@ -34,7 +34,7 @@ export const redirectToUrl = async (req,res) => {
   if (!shortid) return res.status(400).json({error : 'Id is required'})
   const filter = {shortId : shortid};
   try {
-    const updated = urlModel.findOneAndUpdate(filter, {
+    const updated = await urlModel.findOneAndUpdate(filter, {
       $push : {
         visitHistory : {
           timestamp : Date.now()
