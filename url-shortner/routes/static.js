@@ -10,4 +10,8 @@ router.route('/signup').get((req,res) => {
   return res.render('signup');
 })
 
+router.route('/login').get((req,res) => {
+  return res.render('login');
+})
+
 export default router;

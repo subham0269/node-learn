@@ -20,15 +20,14 @@ connectToMongo(MONGO_URL).then(() => console.log('Connected to Database')).catch
 
 app.set('view engine', 'ejs');
 app.set("views",path.resolve('./views'));
+
 app.use(e.urlencoded({extended: false}));
 
-app.use('/', staticRouter); //for ssr and pages
+app.use('/', staticRouter); //for ssr paging and routing
 
-app.use('/user', userRouter); //for authentication
+app.use('/user', userRouter); //for user authentication
 
-// app.use('/url', router);
-
-app.use('/url',router) //making requests and redirects
+app.use('/url',router) //posting new requests and redirects to the urls
 
 
 app.listen(PORT, () => console.log(`Server started at port ${PORT}`))
