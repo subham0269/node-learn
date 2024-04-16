@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import router from "./routes/index.js";
 import staticRouter from './routes/static.js'
 import userRouter from './routes/user.js';
+import cookieParser from 'cookie-parser'
+import { restrictLoggedInUserOnly } from './middlewares/auth.js';
 dotenv.config();;
 const PORT = 8001;
 const app = e();
@@ -22,8 +24,9 @@ app.set('view engine', 'ejs');
 app.set("views",path.resolve('./views'));
 
 app.use(e.urlencoded({extended: false}));
+app.use(cookieParser());
 
-app.use('/', staticRouter); //for ssr paging and routing
+app.use('/', restrictLoggedInUserOnly, staticRouter); //for ssr paging and routing
 
 app.use('/user', userRouter); //for user authentication
 

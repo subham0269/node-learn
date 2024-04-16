@@ -1,4 +1,7 @@
-import userModel from "../models/users.js"
+import userModel from "../models/users.js";
+import { v4 as uuidv4 } from 'uuid';
+import { getUser, setUser } from "../service/auth.js";
+// uuidv4();
 
 export const handleUserSignup = async (req, res) => {
   try {
@@ -24,6 +27,9 @@ export const handleUserLogin = async (req, res) => {
     if (!usr) return res.render('login', {
       error: 'Invalid email or password'
     })
+    const sessionID = uuidv4();
+    setUser(sessionID, usr);
+    res.cookie('uid', sessionID);
     return res.redirect('/')
   } catch (err) {
     return res.status(500).json({error : 'Internal Server Error'})
