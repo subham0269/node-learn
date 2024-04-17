@@ -26,11 +26,11 @@ app.set("views",path.resolve('./views'));
 app.use(e.urlencoded({extended: false}));
 app.use(cookieParser());
 
-app.use('/', restrictLoggedInUserOnly, staticRouter); //for ssr paging and routing
+app.use('/', staticRouter); //for ssr paging and routing
 
 app.use('/user', userRouter); //for user authentication
 
-app.use('/url',router) //posting new requests and redirects to the urls
+app.use('/url',restrictLoggedInUserOnly,router) //posting new requests and redirects to the urls
 
 
 app.listen(PORT, () => console.log(`Server started at port ${PORT}`))
