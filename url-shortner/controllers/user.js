@@ -27,11 +27,11 @@ export const handleUserLogin = async (req, res) => {
     if (!usr) return res.render('login', {
       error: 'Invalid email or password'
     })
-    const sessionID = uuidv4();
-    setUser(sessionID, usr);
-    res.cookie('uid', sessionID);
+    const jwtToken = setUser(usr);
+    res.cookie('uid', jwtToken);
     return res.redirect('/')
   } catch (err) {
+    console.log('user login error', err);
     return res.status(500).json({error : 'Internal Server Error'})
   }
 }
