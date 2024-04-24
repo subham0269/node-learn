@@ -2,7 +2,7 @@ import { getUser } from "../service/auth.js";
 
 export const restrictLoggedInUserOnly = async (req, res, next) => {
   const userSessionId = req.cookies?.uid;
-  console.log('mdw 1');
+  console.log('mdw restrictLoggedInUserOnly');
   if (!userSessionId) {
     return res.redirect('/login');
   }
@@ -15,3 +15,13 @@ export const restrictLoggedInUserOnly = async (req, res, next) => {
   req.user = user;
   next();
 };
+
+export const checkAuth = async (req,res,next) => {
+  const userSessionId = req.cookies?.uid;
+  console.log('mdw checkAuth');
+
+  const user = getUser(userSessionId);
+
+  req.user = user;
+  next();
+}

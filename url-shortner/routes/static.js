@@ -4,8 +4,10 @@ import urlModel from '../models/url.js';
 const router = express.Router();
 
 router.route('/').get(async (req,res) => {
+  const user = req.user;
+  if (!user) return res.redirect('/login');
   try {
-    const allUrls = await urlModel.find({})
+    const allUrls = await urlModel.find({ createdBy: req.user._id })
     return res.render('home', {
       urls: allUrls
     });
