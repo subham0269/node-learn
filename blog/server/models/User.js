@@ -34,7 +34,7 @@ userSchema.pre('save', function (next) {
   const user = this;
   if (!user.isModified("password")) return;
   const salt = randomBytes(16).toString();
-  const hashedPassword = createHmac('sha256', salt).update('password').digest('hex');
+  const hashedPassword = createHmac('sha256', salt).update(user.password).digest('hex');
   this.salt = salt;
   this.password = hashedPassword;
   next();
@@ -52,7 +52,7 @@ userSchema.static("passwordMatchChecker", async function (email, password) {
 
   if (hashedPassword !== userProvidedHash) throw new Error ('Incorrect Password');
 
-  return {...user, password : undefined, salt: undefined };
+  return {_id: user._id, fullName:  user.fullName, email:  user.email};
   
 })
 
