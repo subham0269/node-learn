@@ -21,6 +21,7 @@ router.route('/signup').post(async (req,res) => {
 
 router.route('/signin').post( async (req, res) => {
   const { email, password } = req.body;
+  console.log('user object', req.user);
   try {
     const user = await userModel.passwordMatchChecker(email, password);
     console.log(user);

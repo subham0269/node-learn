@@ -1,6 +1,10 @@
 import express from "express";
+import cookieParser from "cookie-parser";
+
 import connectToMongo from "./connection.js";
 import router from "./routes/user.js";
+import checkForAuthCookies from "./middlewares/auth.js";
+
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -16,6 +20,8 @@ connectToMongo(MONGO_URL).then(() => console.log('Connected to Database')).catch
 })
 
 app.use(express.urlencoded({extended: false}));
+app.use(cookieParser());
+app.use(checkForAuthCookies('token'));
 
 app.use('/', router);
 
